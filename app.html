@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      body {
+        min-height: 100%;
+        background-color: #f0eadc;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+
+      #container {
+        width: 100vw;
+        height: 100vh;
+      }
+    </style>
+    <title>Document</title>
+  </head>
+  <body>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+    <script src="https://unpkg.com/spritejs@3/dist/spritejs.es.min.js"></script>
+    <script src="https://unpkg.com/sprite-extend-3d/dist/sprite-extend-3d.js"></script>
+    <div id="container"></div>
+    <script type="module">
+      const { Scene } = spritejs;
+      const { Cylinder, Light, shaders, Plane } = spritejs.ext3d;
+
+      const colors = [
+        "#5DCD51",
+        "#51CD82",
+        "#51CDC0",
+        "#519BCD",
+        "#515DCD",
+        "#8251CD",
+        "#CD519B",
+        "#CD519B",
+        "#CD515D",
+        "#CD8251",
+        "#CDC051",
+        "#B6DA81",
+        "#D2E8B0",
+        "#A481DA",
+        "#5DCD51",
+        "#51CD82",
+        // "#51CDC0",
+        // "#519BCD",
+        // "#515DCD",
+        // "#8251CD",
+        // "#CD519B",
+        // "#CD519B",
+        // "#CD515D",
+        // "#CD8251",
+        // "#CDC051",
+        // "#B6DA81",
+        // "#D2E8B0",
+        // "#A481DA",
+        // "#5DCD51",
+        // "#51CD82",
+        // "#51CDC0",
+        // "#519BCD",
+        // "#515DCD",
+        // "#8251CD",
+        // "#CD519B",
+      ];
+
+      function draw() {
+        const container = document.getElementById("container");
+
+        // SET scene
+        const scene = new Scene({
+          container,
+          displayRatio: 2,
+        });
+        // set layer
+        const layer = scene.layer3d("fglayer", {
+          camera: {
+            fov: 35,
+            pos: [19, 20, 22],
+          },
+        });
+        layer.camera.lookAt([0, 0, 0]);
+        layer.camera.mode = "orthographic";
+
+        //set program
+        const program = layer.createProgram({
+          vertex: shaders.GEOMETRY.vertex,
+          fragment: shaders.GEOMETRY.fragment,
+        });
+
+        // set cylinder
+        const cylinderWidth = 0.5;
+        const maxCylinderHeight = 0.1;
+        const cylinderGap = 0.15;
+        const selection = d3.select(layer);
+        selection
+          .selectAll("cylinder")
+          .data(colors)
+          .enter()
+          .append(() => {
+            const cylinder = new Cylinder(program, {
+              radiusTop: cylinderWidth / 2,
+              radiusBottom: cylinderWidth / 2,
+              height: maxCylinderHeight,
+              radialSegments: 32,
+              heightSegments: 1,
+              openEnded: false,
+            });
+
+            return cylinder;
+          })
+          .attr("pos", (d, i) => {
+            let x, z;
+
+            z = -5 + (cylinderWidth + cylinderGap) * (i % 10);
+
+            x = -2 + (cylinderWidth + cylinderGap) * Math.floor(i / 10);
+            console.log(i);
+            return [x, 0, z];
+          })
+
+          .attr("colors", (d, i) => [colors[i % colors.length]]);
+
+        // 可旋轉
+        layer.setOrbit();
+      }
+
+      draw();
+    </script>
+  </body>
+</html>
